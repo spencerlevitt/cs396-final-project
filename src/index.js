@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
 const chatRoutes = require("./routes/chatRoutes");
+const roomRoutes = require("./routes/roomRoutes");
+const socketFunctions = require("./middlewares/socketFunctions");
 const _ = require("underscore");
 const cors = require("cors");
 
@@ -39,15 +41,17 @@ io.on("connection", (socket, next) => {
   socket.on("roomConnection", async function (data) {
     console.log("User joined room" + data);
     await socket.join(`${data}`);
-    var room = io.sockets.adapter.rooms;
-    console.log(room);
+    const rooms = io.sockets.adapter.rooms;
+    console.log(rooms);
+    await socketFunctions.sendToAll(rooms);
   });
 
   socket.on("roomDisconnection", async function (data) {
     console.log("User left room" + data);
     await socket.leave(`${data}`);
-    var room = io.sockets.adapter.rooms;
-    console.log(room);
+    const rooms = io.sockets.adapter.rooms;
+    console.log(rooms);
+    await socketFunctions.sendToAll(rooms);
   });
 
   socket.on("disconnect", (reason) => {
@@ -59,6 +63,7 @@ io.on("connection", (socket, next) => {
 
 app.use(bodyParser.json());
 app.use(chatRoutes);
+app.use(roomRoutes);
 
 // const mongoUri = process.env.MONGO_KEY;
 // mongoose.connect(mongoUri, {
