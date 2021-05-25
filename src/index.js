@@ -36,6 +36,20 @@ io.on("connection", (socket, next) => {
     }
   });
 
+  socket.on("roomConnection", async function (data) {
+    console.log("User joined room" + data);
+    await socket.join(`${data}`);
+    var room = io.sockets.adapter.rooms;
+    console.log(room);
+  });
+
+  socket.on("roomDisconnection", async function (data) {
+    console.log("User left room" + data);
+    await socket.leave(`${data}`);
+    var room = io.sockets.adapter.rooms;
+    console.log(room);
+  });
+
   socket.on("disconnect", (reason) => {
     console.log("user " + app.get("clients")[socket.id] + " disconnected");
     console.log(reason);
