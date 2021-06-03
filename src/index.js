@@ -14,9 +14,13 @@ if (process.env.NODE_ENV !== "production") {
 app = express();
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
-  console.log("Listening on port" + PORT);
+  console.log("Listening on port " + PORT);
 });
-var io = require("socket.io")(server);
+var io = require("socket.io")(server, {
+  cors: {
+    origins: ["http://localhost:19006"]
+  }
+});
 app.set("socketio", io);
 app.set("clients", {});
 
@@ -39,7 +43,7 @@ io.on("connection", (socket, next) => {
   });
 
   socket.on("roomConnection", async function (data) {
-    console.log("User joined room" + data);
+    console.log("User joined room " + data);
     await socket.join(`${data}`);
     const rooms = io.sockets.adapter.rooms;
     console.log(rooms);
@@ -58,6 +62,10 @@ io.on("connection", (socket, next) => {
     console.log("user " + app.get("clients")[socket.id] + " disconnected");
     console.log(reason);
     delete app.get("clients")[socket.id];
+  });
+
+  socket.on("sendToRoom", async function (room, title, body) {
+    socketFunctions.sendToRoom(room, title, body);
   });
 });
 
