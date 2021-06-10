@@ -18,8 +18,11 @@ const server = app.listen(PORT, () => {
 });
 var io = require("socket.io")(server, {
   cors: {
-    origins: ["http://localhost:19006"]
-  }
+    origins: [
+      "http://localhost:19006",
+      "https://cs396-final-project-app.vercel.app",
+    ],
+  },
 });
 app.set("socketio", io);
 app.set("clients", {});
